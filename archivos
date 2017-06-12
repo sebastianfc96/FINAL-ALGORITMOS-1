@@ -1,0 +1,276 @@
+#include "stdafx.h"
+#include "conio.h"
+#include <iostream>
+#define max 40
+
+using namespace std;
+
+struct multas{
+	int id_multa;
+	int placa;
+	int ci;
+	int dia;
+	int mes;
+	int ano;
+	int estado;
+	};
+
+void adicionar();
+void listado();
+void modificar();
+void consultar();
+void eliminar();
+void eliminarfis();
+int posi(int id);
+
+
+void main()
+{
+	int op;
+	do{
+	cout<<"         MENU         "<<endl;
+	cout<<"(1) Adicionar         "<<endl;
+	cout<<"(2) Listado           "<<endl;
+	cout<<"(3) Modificar         "<<endl;
+	cout<<"(4) Consultar         "<<endl;
+	cout<<"(5) Eliminar          "<<endl;
+	cout<<"(6) Eliminar fisico   "<<endl;
+	cout<<endl;
+	cout<<"Ingrese la opcion que desea"<<endl;
+	cin>>op;
+	switch(op)
+	{
+		case 1:
+			{
+				adicionar();
+				break;
+			}
+		case 2:
+			{
+				listado();
+				break;
+			}
+		case 3:
+			{
+				modificar();
+				break;
+			}
+		case 4:
+			{
+				consultar();
+				break;
+			}
+		case 5:
+			{
+				eliminar();
+				break;
+			}
+		case 6:
+			{
+				eliminarfis();
+				break;
+			}
+		case 0:
+			{
+				cout<<"Salir"<<endl;
+				break;
+			}
+		default:
+			{
+				cout<<"Opcion invalida"<<endl;
+				break;
+			}
+	}
+	}while(op!=0);
+	getch();
+}
+
+void adicionar(){
+	FILE *ptr;
+	multas reg;
+	ptr=fopen("multas.dat","ab");
+	if(ptr==NULL)
+		cout<<"El archivo no existe"<<endl;
+	else
+	{
+		cout<<"Ingrese el id de la multa"<<endl;
+		cin>>reg.id_multa;
+		cout<<"Ingrese la placa"<<endl;
+		cin>>reg.placa;
+		cout<<"Ingrese el CI"<<endl;
+		cin>>reg.ci;
+		cout<<"Ingrese el dia ";
+		cin>>reg.dia;
+		cout<<"Ingrese el mes ";
+		cin>>reg.mes;
+		cout<<"Ingrese el ano ";
+		cin>>reg.ano;
+		reg.estado=1;
+		fwrite(&reg,sizeof(reg),1,ptr);
+		fclose(ptr);
+	}
+	};
+
+void listado(){
+	FILE *ptr;
+	multas reg;
+	ptr=fopen("multas.dat","rb");
+	if(ptr==NULL)
+		cout<<"El archivo no existe"<<endl;
+	else
+	{
+		fread(&reg,sizeof(reg),1,ptr);
+		cout<<"ID MULTA         PLACA          CI         ANO       MES     DIA "<<endl;
+		cout<<"------------------------------------"<<endl;
+		while(!feof(ptr))
+		{
+			if (reg.estado==1)
+			{
+				cout<<reg.id_multa<<"\t""\t"<<reg.placa<<"\t""\t"<<reg.ci<<"\t""\t"<<reg.ano<<"   "<<reg.mes<<"   "<<reg.dia<<endl;
+			}
+		 fread(&reg,sizeof(reg),1,ptr);
+		}
+		cout<<"------------------------------------"<<endl;
+	 fclose(ptr);
+	}
+	};
+
+void modificar(){
+		FILE *ptr;
+		multas reg;
+		int id,pos;
+		ptr=fopen("multas.dat","r+b");
+		if(ptr==NULL)
+			cout<<"El archivo no existe"<<endl;
+		else
+		{
+			cout<<"Ingrese el id del archivo que desea modificar"<<endl;
+			cin>>id;
+			pos=posi(id);
+			fseek(ptr,(pos-1)*sizeof(reg),SEEK_SET);
+			fread(&reg,sizeof(reg),1,ptr);
+			cout<<"Ingrese el id de la multa"<<endl;
+			cin>>reg.id_multa;
+			cout<<"Ingrese la placa"<<endl;
+			cin>>reg.placa;
+			cout<<"Ingrese el CI"<<endl;
+			cin>>reg.ci;
+			cout<<"Ingrese el dia ";
+			cin>>reg.dia;
+			cout<<"Ingrese el mes ";
+			cin>>reg.mes;
+			cout<<"Ingrese el ano ";
+			cin>>reg.ano;
+			fseek(ptr,(pos-1)*sizeof(reg),SEEK_SET);
+			fwrite(&reg,sizeof(reg),1,ptr);
+			fclose(ptr);
+		}
+	};
+
+int posi(int id){
+	FILE *ptr;
+	multas reg;
+	int cont=0,pos;
+	ptr=fopen("multas.dat","rb");
+	if(ptr==NULL)
+		cout<<"El archivo no existe"<<endl;
+	else
+	{
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr))
+		{
+			cont++;
+			if(reg.id_multa==id)
+				pos=cont;
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+	}
+	return(pos);
+	};
+
+void consultar(){
+	FILE *ptr;
+	multas reg;
+	int id,pos;
+	ptr=fopen("multas.dat","rb");
+	if(ptr==NULL)
+		cout<<"El archivo no existe"<<endl;
+	else
+	{
+		cout<<"Ingrese el id del archivo que desea ver"<<endl;
+		cin>>id;
+		pos=posi(id);
+		fseek(ptr,(pos-1)*sizeof(reg),SEEK_SET);
+		fread(&reg,sizeof(reg),1,ptr);
+		if(reg.estado==1)
+		{
+			cout<<"ID MULTA         PLACA          CI         ANO        MES       DIA "<<endl;
+			cout<<"------------------------------------"<<endl;
+			cout<<reg.id_multa<<"\t""\t"<<reg.placa<<"\t""\t"<<reg.ci<<"\t""  "<<reg.ano<<"        "<<reg.mes<<"         "<<reg.dia<<endl;
+		}
+		else
+			cout<<"El archivo fue eliminado"<<endl;
+
+		fclose(ptr);
+	}
+	}
+
+void eliminar(){
+	FILE *ptr;
+	multas reg;
+	int id,pos;
+	ptr=fopen("multas.dat","r+b");
+	if(ptr==NULL)
+		cout<<"El archivo no existe"<<endl;
+	else
+	{
+		cout<<"Ingrese el id del archivo que desea ver"<<endl;
+		cin>>id;
+		pos=posi(id);
+		fseek(ptr,(pos-1)*sizeof(reg),SEEK_SET);
+		fread(&reg,sizeof(reg),1,ptr);
+		fseek(ptr,(pos-1)*sizeof(reg),SEEK_SET);
+		reg.estado=0;
+		fwrite(&reg,sizeof(reg),1,ptr);
+		fclose(ptr);
+	}
+	}
+void eliminarfis(){
+	FILE *ptr;
+	multas reg,vec[max];
+	int pos,id,i=0,n;
+	ptr=fopen("multas.dat","r+b");
+	if (ptr==NULL)
+		cout<<"El archivo no existe"<<endl;
+	else
+	{
+		cout<<"Ingrese el id del archivo que desea eliminar"<<endl;
+		cin>>id;
+		pos=posi(id);
+		while(!feof(ptr))
+		{
+			fread(&reg,sizeof(reg),1,ptr);
+			if(reg.id_multa!=id)
+			{
+				vec[i]=reg;
+				i++;
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+		ptr=fopen("multas.dat","wb");
+			for(n=0;n<i;n++)
+			{
+				reg.id_multa=vec[n].id_multa;
+				reg.ci=vec[n].ci;
+				reg.placa=vec[n].placa;
+				reg.estado=vec[n].estado;
+				reg.dia=vec[n].dia;
+				reg.mes=vec[n].mes;
+				reg.ano=vec[n].ano;
+				fwrite(&reg,sizeof(reg),1,ptr);
+			}
+			fclose(ptr);
+	}
+	}
